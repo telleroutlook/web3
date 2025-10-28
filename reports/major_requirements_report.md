@@ -64,3 +64,7 @@ Category-specific highlights:
 
 These findings indicate that explicit degree or major requirements are rare (appearing in roughly 23% of current postings), but when present they overwhelmingly prioritize computer science or business-related backgrounds, with smaller pockets of demand for data/analytics, marketing, and design profiles.
 
+## Structured phrase statistics
+
+For a phrase-level view, including both the exact wording employers used and the normalized discipline groupings, see `reports/major_phrase_statistics.md` generated via `python analyze_majors.py`. The report shows that about half of the postings mention at least one specific major, with **Computer Science**, **Business/Management**, and **Finance** dominating the demand, followed by accounting, engineering, design/UX, and marketing specialties.
+

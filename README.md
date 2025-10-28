@@ -37,3 +37,13 @@ python web3_major_stats.py --job-url-input job_urls.txt --workers 12 --sleep 0 -
 
 > **Note**
 > Running the script requires internet access to `web3.career`. In restricted environments the network calls may fail.
+
+### Generate a structured frequency report
+
+Once `majors.csv` has been produced, run the companion analysis script to create a Markdown report with the raw phrase and normalized major breakdowns:
+
+```bash
+python analyze_majors.py --input majors.csv --output reports/major_phrase_statistics.md --top 25
+```
+
+The generated file (tracked in `reports/major_phrase_statistics.md`) highlights the most common degree phrases, the share of postings that mention each one, and a second table where similar phrasings are merged into curated academic disciplines.
