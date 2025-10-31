@@ -47,3 +47,13 @@ python analyze_majors.py --input majors.csv --output reports/major_phrase_statis
 ```
 
 The generated file (tracked in `reports/major_phrase_statistics.md`) highlights the most common degree phrases, the share of postings that mention each one, and a second table where similar phrasings are merged into curated academic disciplines.
+
+### Generate a country & city location report
+
+The refreshed scraper also records structured location metadata (city, region, country, and remote hints) for each job. Use the location analysis helper to aggregate those details into a Markdown summary that highlights the most active hubs and countries:
+
+```bash
+python analyze_locations.py --input majors.csv --output reports/location_statistics.md --top-cities 25 --top-countries 25
+```
+
+The resulting `reports/location_statistics.md` includes overall remote/on-site shares, a table of top metro areas (with a "Remote / Anywhere" bucket for fully distributed roles), and the country-level distribution after normalizing common aliases (e.g., *USA* → *United States*).

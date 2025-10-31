@@ -30,6 +30,7 @@ from __future__ import annotations
 import argparse
 import csv
 import dataclasses
+import json
 import logging
 import re
 import sys
@@ -151,6 +152,10 @@ MAJOR_PATTERNS: Sequence[re.Pattern[str]] = (
 SCRIPT_STYLE_TAG = re.compile(r"(?is)<(script|style)[^>]*>.*?</\\1>")
 TAG_RE = re.compile(r"(?s)<[^>]+>")
 WHITESPACE_RE = re.compile(r"\s+")
+JSON_LD_RE = re.compile(
+    r"<script[^>]*type=\"application/ld\+json\"[^>]*>(.*?)</script>",
+    re.IGNORECASE | re.DOTALL,
+)
 
 
 def _http_get(
@@ -337,6 +342,211 @@ def categorize_phrase(phrase: str) -> str:
     return "Other / Unspecified"
 
 
+def _parse_jsonld_blocks(html: str) -> List[dict]:
+    """Return JSON-LD dictionaries embedded in the page."""
+
+    postings: List[dict] = []
+
+    def handle_payload(payload: object) -> None:
+        if isinstance(payload, list):
+            for item in payload:
+                handle_payload(item)
+            return
+        if not isinstance(payload, dict):
+            return
+        if payload.get("@type") == "JobPosting":
+            postings.append(payload)
+
+    for match in JSON_LD_RE.finditer(html):
+        raw_json = match.group(1).strip()
+        if not raw_json:
+            continue
+        try:
+            data = json.loads(raw_json)
+        except json.JSONDecodeError:
+            logging.debug("Failed to decode JSON-LD block")
+            continue
+        handle_payload(data)
+    return postings
+
+
+def _append_unique(container: List[str], value: Optional[str], *, skip_anywhere: bool = False) -> None:
+    if not value:
+        return
+    candidate = WHITESPACE_RE.sub(" ", value).strip()
+    if not candidate:
+        return
+    if skip_anywhere and candidate.lower() == "anywhere":
+        return
+    if candidate not in container:
+        container.append(candidate)
+
+
+def infer_location_from_title(title: str) -> Optional[str]:
+    """Best-effort location extraction from the page title."""
+
+    cleaned = WHITESPACE_RE.sub(" ", title).strip()
+    if not cleaned:
+        return None
+    if re.search(r"\bremote\b", cleaned, re.IGNORECASE):
+        return "Remote"
+    if " in " in cleaned:
+        candidate = cleaned.rsplit(" in ", 1)[1].strip(" -–—")
+        if candidate:
+            return candidate
+    dash_match = re.search(r"[-–—]\s*([A-Za-z][A-Za-z0-9 .,/'&()-]+)$", cleaned)
+    if dash_match:
+        candidate = dash_match.group(1).strip()
+        if candidate:
+            return candidate
+    trailing_match = re.search(r"([A-Za-z][A-Za-z0-9 .,/'&()-]+)$", cleaned)
+    if trailing_match:
+        candidate = trailing_match.group(1).strip()
+        if candidate:
+            return candidate
+    return None
+
+
+def extract_location_info(html: str, title: Optional[str] = None) -> JobLocation:
+    """Extract structured location details from a job posting page."""
+
+    location = JobLocation()
+    postings = _parse_jsonld_blocks(html)
+
+    def add_entry(
+        raw: Optional[str],
+        city: Optional[str],
+        region: Optional[str],
+        country: Optional[str],
+        source: str,
+    ) -> None:
+        if not raw:
+            return
+        normalized_raw = WHITESPACE_RE.sub(" ", raw).strip()
+        if not normalized_raw:
+            return
+        for existing in location.entries:
+            if existing.raw == normalized_raw:
+                return
+        location.entries.append(
+            LocationEntry(
+                raw=normalized_raw,
+                city=WHITESPACE_RE.sub(" ", city).strip() if city else None,
+                region=WHITESPACE_RE.sub(" ", region).strip() if region else None,
+                country=WHITESPACE_RE.sub(" ", country).strip() if country else None,
+            )
+        )
+        location.sources.add(source)
+
+    for posting in postings:
+        loc_type = posting.get("jobLocationType")
+        if loc_type and not location.location_type:
+            location.location_type = loc_type
+        if loc_type and "telecommute" in loc_type.lower():
+            location.is_remote = True
+
+        applicant_req = posting.get("applicantLocationRequirements")
+        if isinstance(applicant_req, dict):
+            applicant_req = [applicant_req]
+        if isinstance(applicant_req, list):
+            for req in applicant_req:
+                if isinstance(req, dict):
+                    name = req.get("name") or req.get("addressCountry")
+                    _append_unique(location.applicant_requirements, name, skip_anywhere=False)
+                    if name and name.strip().lower() == "anywhere":
+                        location.is_remote = True
+                elif isinstance(req, str):
+                    _append_unique(location.applicant_requirements, req, skip_anywhere=False)
+                    if req.strip().lower() == "anywhere":
+                        location.is_remote = True
+
+        job_location = posting.get("jobLocation")
+        if isinstance(job_location, dict):
+            job_location = [job_location]
+        if isinstance(job_location, list):
+            for item in job_location:
+                if not isinstance(item, dict):
+                    continue
+                address = item.get("address")
+                if isinstance(address, dict):
+                    city = address.get("addressLocality")
+                    region = address.get("addressRegion")
+                    country = address.get("addressCountry")
+
+                    placeholders = {"anywhere", "remote", "global"}
+
+                    def sanitize(value: Optional[str]) -> Optional[str]:
+                        if not value:
+                            return None
+                        cleaned = WHITESPACE_RE.sub(" ", value).strip()
+                        if not cleaned:
+                            return None
+                        if cleaned.lower() in placeholders:
+                            return None
+                        return cleaned
+
+                    city_clean = sanitize(city)
+                    region_clean = sanitize(region)
+                    country_clean = sanitize(country)
+
+                    for candidate in (city, region, country):
+                        if candidate and candidate.strip().lower() in placeholders:
+                            location.is_remote = True
+
+                    parts = [value for value in (city_clean, region_clean, country_clean) if value]
+                    if parts:
+                        add_entry(
+                            ", ".join(parts),
+                            city_clean,
+                            region_clean,
+                            country_clean,
+                            source="jsonld",
+                        )
+                    else:
+                        name = address.get("name")
+                        if name:
+                            add_entry(name, None, None, None, source="jsonld")
+                else:
+                    name = item.get("name") if isinstance(item.get("name"), str) else None
+                    if name:
+                        add_entry(name, None, None, None, source="jsonld")
+
+    if not location.entries and title:
+        inferred = infer_location_from_title(title)
+        if inferred:
+            add_entry(inferred, None, None, None, source="title")
+            if inferred.lower() == "remote":
+                location.is_remote = True
+            if not location.location_type:
+                location.location_type = "TITLE_INFERRED"
+
+    for entry in location.entries:
+        if entry.raw.lower() in {"remote", "anywhere"}:
+            location.is_remote = True
+
+    if not location.entries and location.is_remote:
+        add_entry("Remote", None, None, None, source="derived")
+
+    return location
+
+
+@dataclasses.dataclass
+class LocationEntry:
+    raw: str
+    city: Optional[str] = None
+    region: Optional[str] = None
+    country: Optional[str] = None
+
+
+@dataclasses.dataclass
+class JobLocation:
+    entries: List[LocationEntry] = dataclasses.field(default_factory=list)
+    location_type: Optional[str] = None
+    is_remote: bool = False
+    applicant_requirements: List[str] = dataclasses.field(default_factory=list)
+    sources: Set[str] = dataclasses.field(default_factory=set)
+
+
 @dataclasses.dataclass
 class JobMajorInfo:
     url: str
@@ -344,6 +554,7 @@ class JobMajorInfo:
     company: Optional[str] = None
     raw_phrases: List[str] = dataclasses.field(default_factory=list)
     categories: Set[str] = dataclasses.field(default_factory=set)
+    location: JobLocation = dataclasses.field(default_factory=JobLocation)
 
 
 def extract_title_and_company(html: str) -> tuple[Optional[str], Optional[str]]:
@@ -404,12 +615,14 @@ def fetch_job_information(
         phrases = extract_major_phrases(text)
         categories = {categorize_phrase(phrase) for phrase in phrases}
         title, company = extract_title_and_company(body)
+        location = extract_location_info(body, title=title)
         record = JobMajorInfo(
             url=url,
             title=title,
             company=company,
             raw_phrases=phrases,
             categories=categories,
+            location=location,
         )
         return idx, record
 
@@ -485,8 +698,48 @@ def print_report(records: Sequence[JobMajorInfo]) -> None:
 def write_csv(records: Sequence[JobMajorInfo], path: str) -> None:
     with open(path, "w", newline="", encoding="utf-8") as fp:
         writer = csv.writer(fp)
-        writer.writerow(["url", "title", "company", "categories", "raw_phrases"])
+        writer.writerow(
+            [
+                "url",
+                "title",
+                "company",
+                "categories",
+                "raw_phrases",
+                "location_raw",
+                "location_cities",
+                "location_regions",
+                "location_countries",
+                "location_type",
+                "location_is_remote",
+                "applicant_location_requirements",
+                "location_sources",
+            ]
+        )
         for record in records:
+            raw_locations = [entry.raw for entry in record.location.entries]
+            city_labels: List[str] = []
+            region_labels: List[str] = []
+            country_labels: List[str] = []
+            for entry in record.location.entries:
+                if entry.city and entry.city.strip().lower() != "anywhere":
+                    parts = [entry.city.strip()]
+                    if entry.region and entry.region.strip().lower() != "anywhere":
+                        parts.append(entry.region.strip())
+                    if entry.country and entry.country.strip().lower() != "anywhere":
+                        parts.append(entry.country.strip())
+                    label = ", ".join(parts)
+                    if label and label not in city_labels:
+                        city_labels.append(label)
+                if entry.region:
+                    cleaned_region = entry.region.strip()
+                    if cleaned_region and cleaned_region.lower() != "anywhere":
+                        if cleaned_region not in region_labels:
+                            region_labels.append(cleaned_region)
+                if entry.country:
+                    cleaned_country = entry.country.strip()
+                    if cleaned_country and cleaned_country.lower() != "anywhere":
+                        if cleaned_country not in country_labels:
+                            country_labels.append(cleaned_country)
             writer.writerow(
                 [
                     record.url,
@@ -494,6 +747,14 @@ def write_csv(records: Sequence[JobMajorInfo], path: str) -> None:
                     record.company or "",
                     "; ".join(sorted(record.categories)),
                     "; ".join(record.raw_phrases),
+                    "; ".join(raw_locations),
+                    "; ".join(city_labels),
+                    "; ".join(region_labels),
+                    "; ".join(country_labels),
+                    record.location.location_type or "",
+                    "true" if record.location.is_remote else "false",
+                    "; ".join(record.location.applicant_requirements),
+                    "; ".join(sorted(record.location.sources)),
                 ]
             )
     logging.info("Wrote CSV output to %s", path)
