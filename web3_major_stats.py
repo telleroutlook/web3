@@ -262,11 +262,18 @@ def discover_job_links_from_listing(
                 continue
             before = len(urls)
             for match in re.findall(r'href="(/[^"?#]+)"', body):
-                if match.count("/") > 1 and "-" in match and not match.endswith(".xml"):
-                    full_url = urljoin(BASE_URL, match)
-                    if "/companies" in full_url or "/salary" in full_url:
-                        continue
-                    urls.add(full_url)
+                if match.endswith((".css", ".js", ".png", ".jpg", ".jpeg", ".gif")):
+                    continue
+                full_url = urljoin(BASE_URL, match)
+                parsed = urlparse(full_url)
+                parts = [segment for segment in parsed.path.split("/") if segment]
+                if len(parts) != 2:
+                    continue
+                if not parts[1].isdigit():
+                    continue
+                if "/companies" in full_url or "/salary" in full_url:
+                    continue
+                urls.add(full_url)
             added = len(urls) - before
             batch_new += added
             logging.info("Discovered %d potential job links from %s", len(urls), page_url)

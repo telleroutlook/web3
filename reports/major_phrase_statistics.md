@@ -1,11 +1,11 @@
 # Major requirement frequency analysis
 
-_Generated: 2025-10-28 08:59 UTC_
+_Generated: 2025-10-31 04:32 UTC_
 
 ## Dataset overview
 
-- Job postings analyzed: 3144
-- Jobs mentioning at least one major: 1601 (50.92% of dataset)
+- Job postings analyzed: 7477
+- Jobs mentioning at least one major: 4236 (56.65% of dataset)
 
 ## Step 1 · Raw phrase frequency
 
@@ -13,31 +13,31 @@ The table below keeps the original phrasing from job descriptions, so it capture
 
 | Phrase | Jobs | Share of all jobs | Share of jobs w/ majors |
 |---|---:|---:|---:|
-| computer science | 774 | 24.62% | 48.34% |
-| finance | 344 | 10.94% | 21.49% |
-| business | 332 | 10.56% | 20.74% |
-| accounting | 100 | 3.18% | 6.25% |
-| engineering | 95 | 3.02% | 5.93% |
-| marketing | 85 | 2.70% | 5.31% |
-| computer information systems | 84 | 2.67% | 5.25% |
-| design | 73 | 2.32% | 4.56% |
-| business administration | 70 | 2.23% | 4.37% |
-| legal | 33 | 1.05% | 2.06% |
-| communications | 30 | 0.95% | 1.87% |
-| mathematics | 24 | 0.76% | 1.50% |
-| law | 22 | 0.70% | 1.37% |
-| statistics | 18 | 0.57% | 1.12% |
-| a quantitative field such as statistics | 14 | 0.45% | 0.87% |
-| graphic design | 9 | 0.29% | 0.56% |
-| software engineering | 6 | 0.19% | 0.37% |
-| data science | 5 | 0.16% | 0.31% |
-| data analytics | 4 | 0.13% | 0.25% |
-| information technology | 4 | 0.13% | 0.25% |
-| spatial design | 3 | 0.10% | 0.19% |
-| legal operations | 2 | 0.06% | 0.12% |
-| information systems | 2 | 0.06% | 0.12% |
-| political science | 2 | 0.06% | 0.12% |
-| data engineering | 2 | 0.06% | 0.12% |
+| computer science | 2024 | 27.07% | 47.78% |
+| business | 1061 | 14.19% | 25.05% |
+| finance | 769 | 10.28% | 18.15% |
+| engineering | 240 | 3.21% | 5.67% |
+| marketing | 226 | 3.02% | 5.34% |
+| accounting | 225 | 3.01% | 5.31% |
+| computer information systems | 197 | 2.63% | 4.65% |
+| design | 162 | 2.17% | 3.82% |
+| business administration | 159 | 2.13% | 3.75% |
+| legal | 96 | 1.28% | 2.27% |
+| law | 58 | 0.78% | 1.37% |
+| statistics | 55 | 0.74% | 1.30% |
+| mathematics | 52 | 0.70% | 1.23% |
+| a quantitative field such as statistics | 34 | 0.45% | 0.80% |
+| communications | 26 | 0.35% | 0.61% |
+| graphic design | 21 | 0.28% | 0.50% |
+| data science | 20 | 0.27% | 0.47% |
+| software engineering | 17 | 0.23% | 0.40% |
+| information technology | 14 | 0.19% | 0.33% |
+| legal operations | 9 | 0.12% | 0.21% |
+| data analytics | 8 | 0.11% | 0.19% |
+| business management | 7 | 0.09% | 0.17% |
+| electrical engineering | 6 | 0.08% | 0.14% |
+| data engineering | 6 | 0.08% | 0.14% |
+| information systems | 5 | 0.07% | 0.12% |
 
 ## Step 2 · Normalized major groupings
 
@@ -45,25 +45,26 @@ Here the phrases are mapped to a curated list of academic disciplines so that si
 
 | Normalized major | Jobs | Share of all jobs | Share of jobs w/ majors |
 |---|---:|---:|---:|
-| Computer Science | 776 | 24.68% | 48.47% |
-| Business Administration & Management | 395 | 12.56% | 24.67% |
-| Finance | 347 | 11.04% | 21.67% |
-| Accounting | 103 | 3.28% | 6.43% |
-| Engineering (General) | 101 | 3.21% | 6.31% |
-| Marketing | 97 | 3.09% | 6.06% |
-| Information Technology & Systems | 92 | 2.93% | 5.75% |
-| Design & UX | 89 | 2.83% | 5.56% |
-| Law | 56 | 1.78% | 3.50% |
-| Communications & Media | 35 | 1.11% | 2.19% |
-| Mathematics | 24 | 0.76% | 1.50% |
-| Statistics | 24 | 0.76% | 1.50% |
-| Data Science & Machine Learning | 10 | 0.32% | 0.62% |
-| Software Engineering | 6 | 0.19% | 0.37% |
-| Political Science & International Relations | 2 | 0.06% | 0.12% |
-| Computer Engineering | 1 | 0.03% | 0.06% |
-| Electrical Engineering | 1 | 0.03% | 0.06% |
-| Industrial Engineering | 1 | 0.03% | 0.06% |
-| Psychology | 1 | 0.03% | 0.06% |
+| Computer Science | 2030 | 27.15% | 47.92% |
+| Business Administration & Management | 1213 | 16.22% | 28.64% |
+| Finance | 778 | 10.41% | 18.37% |
+| Engineering (General) | 258 | 3.45% | 6.09% |
+| Marketing | 248 | 3.32% | 5.85% |
+| Accounting | 230 | 3.08% | 5.43% |
+| Information Technology & Systems | 221 | 2.96% | 5.22% |
+| Design & UX | 194 | 2.59% | 4.58% |
+| Law | 167 | 2.23% | 3.94% |
+| Statistics | 81 | 1.08% | 1.91% |
+| Mathematics | 57 | 0.76% | 1.35% |
+| Communications & Media | 33 | 0.44% | 0.78% |
+| Data Science & Machine Learning | 30 | 0.40% | 0.71% |
+| Software Engineering | 17 | 0.23% | 0.40% |
+| Electrical Engineering | 6 | 0.08% | 0.14% |
+| Computer Engineering | 3 | 0.04% | 0.07% |
+| Political Science & International Relations | 2 | 0.03% | 0.05% |
+| Industrial Engineering | 2 | 0.03% | 0.05% |
+| Psychology | 2 | 0.03% | 0.05% |
+| Mechanical Engineering | 1 | 0.01% | 0.02% |
 
 ## Methodology notes
 

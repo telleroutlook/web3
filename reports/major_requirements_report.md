@@ -1,70 +1,87 @@
 # Web3.career Major Requirement Analysis
 
-_Date generated: 2025-10-28 08:11 UTC_
+_Date generated: 2025-10-31 04:33 UTC_
 
 ## Data collection summary
 
-- Job URLs discovered: 3,152 (from listing crawl cached in `job_urls.txt`).
-- Job descriptions processed: 3,144 (8 pages returned HTTP 403 and could not be retrieved).
-- Output dataset: `majors.csv` containing per-job major phrases and categories.
+- Job URLs discovered: 7,500 (listing crawl cached in `job_urls_extended.txt`)
+- Job descriptions processed: 7,477 (23 pages returned HTTP 403 and could not be retrieved)
+- Output dataset: `majors.csv` containing per-job major phrases, categories, and structured locations
 
 ### Unreachable job postings
 
 The following job pages consistently returned HTTP 403 errors and were excluded from the analysis:
 
+- https://web3.career/legal-admin-assistant-bcbgroup/103494
+- https://web3.career/legal-admin-menyala/104593
+- https://web3.career/legal-advisor-wallet/108194
 - https://web3.career/legal-associate-crypto-echobase/124828
+- https://web3.career/legal-compliance-counsel-foundrydigital/104245
 - https://web3.career/legal-compliance-officer-colombia-easygo/137625
 - https://web3.career/legal-counsel-arbitrum-opco/138318
 - https://web3.career/legal-counsel-bitpanda/138862
+- https://web3.career/legal-counsel-capital-markets-european-union-eu-crypto-com/106838
 - https://web3.career/legal-counsel-coinflowlabs/138499
+- https://web3.career/legal-counsel-driftprotocol/108197
 - https://web3.career/legal-counsel-eea-legal-malta-crypto-com/132846
+- https://web3.career/legal-counsel-gravity-team/104690
+- https://web3.career/legal-counsel-junior-senior-metawealth/105158
 - https://web3.career/legal-counsel-matterlabs/138885
 - https://web3.career/legal-counsel-staff-pintu/132643
+- https://web3.career/legal-intern-quicknode/104963
+- https://web3.career/legal-operations-manager-bloxstaking/92755
+- https://web3.career/legal-operations-manager-chainalysis/106693
+- https://web3.career/legal-ops-kiln/105976
+- https://web3.career/legal-ounsel-corporate-ommercial-wallet/107847
+- https://web3.career/legal-response-lead-global-okx/108319
+- https://web3.career/legal-response-manager-global-okx/108320
 
 ## Category distribution
 
 | Category | Job count | Share |
 |---|---:|---:|
-| Other / Unspecified | 2417 | 76.88% |
-| Computer Science / Software Engineering | 1072 | 34.10% |
-| Finance / Economics / Business | 913 | 29.04% |
-| Data Science / Analytics | 321 | 10.21% |
-| Marketing / Communications | 271 | 8.62% |
-| Design / UX | 211 | 6.71% |
-| Engineering (Non-CS) | 137 | 4.36% |
-| Law / Legal | 63 | 2.00% |
-| Mathematics / Statistics | 25 | 0.80% |
-| Sciences | 7 | 0.22% |
+| Other / Unspecified | 5,853 | 78.28% |
+| Computer Science / Software Engineering | 2,604 | 34.83% |
+| Finance / Economics / Business | 2,374 | 31.75% |
+| Data Science / Analytics | 716 | 9.58% |
+| Marketing / Communications | 528 | 7.06% |
+| Design / UX | 443 | 5.92% |
+| Engineering (Non-CS) | 361 | 4.83% |
+| Law / Legal | 177 | 2.37% |
+| Mathematics / Statistics | 56 | 0.75% |
+| Sciences | 10 | 0.13% |
 
 *Notes:*
-- The "Other / Unspecified" bucket captures postings where no clear major keywords were detected by the current heuristics, or where only generic requirements (e.g. location, experience level) were mentioned.
-- Counts exceed the total number of processed jobs because a single posting can map to multiple categories.
+- "Other / Unspecified" captures listings where no deterministic major keywords surfaced.
+- Counts can exceed the total number of jobs because a posting may map to multiple categories.
 
 ## Most common phrases
 
-Overall top 10 phrases extracted from the job descriptions:
+Overall top 10 phrases extracted from job descriptions:
 
-1. computer science (1,952 mentions)
-2. finance (558)
-3. human resources (532)
-4. business (517)
-5. design (200)
-6. marketing (193)
-7. london (167)
-8. stablecoins and payments (139)
-9. computer science practical experience (133)
-10. accounting (129)
+1. computer science (2,024 mentions)
+2. business (1,061)
+3. finance (769)
+4. engineering (240)
+5. marketing (226)
+6. accounting (225)
+7. computer information systems (197)
+8. design (162)
+9. business administration (159)
+10. legal (96)
 
-Category-specific highlights:
+Category highlights:
 
-- **Computer Science / Software Engineering** frequently references "computer science", "computer information systems", and machine-learning adjacent skills.
-- **Finance / Economics / Business** emphasizes "finance", "business administration", "accounting", and "digital assets" experience.
-- **Data Science / Analytics** is dominated by "machine learning", "quantization and mixed precision model optimization", and platform operations terminology.
-- **Marketing / Communications** postings call out "marketing", "media and markets", and cross-functional coordination skills.
+- **Computer Science / Software Engineering** postings frequently cite computer science, computer information systems, and machine-learning-adjacent skillsets.
+- **Finance / Economics / Business** emphasises finance, business administration, accounting, and digital asset literacy.
+- **Data Science / Analytics** references quantisation, model optimisation, and analytics tooling in addition to core data science terminology.
+- **Marketing / Communications** roles highlight cross-functional coordination, brand storytelling, and go-to-market experience.
 
-These findings indicate that explicit degree or major requirements are rare (appearing in roughly 23% of current postings), but when present they overwhelmingly prioritize computer science or business-related backgrounds, with smaller pockets of demand for data/analytics, marketing, and design profiles.
+These findings show that explicit degree requirements increase with the larger sample (56.7% vs. ~51% previously), while the relative dominance of computer science and business-aligned disciplines remains stable.
 
-## Structured phrase statistics
+## Reference reports
 
-For a phrase-level view, including both the exact wording employers used and the normalized discipline groupings, see `reports/major_phrase_statistics.md` generated via `python analyze_majors.py`. The report shows that about half of the postings mention at least one specific major, with **Computer Science**, **Business/Management**, and **Finance** dominating the demand, followed by accounting, engineering, design/UX, and marketing specialties.
+- Phrase-level and normalized statistics: `reports/major_phrase_statistics.md`
+- Geographic distribution summary: `reports/location_statistics.md`
+- Combined insight report: `reports/web3_comprehensive_report.md`
 
