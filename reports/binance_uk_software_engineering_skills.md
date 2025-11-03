@@ -1,6 +1,27 @@
 # Binance UK Software Engineering Skill Snapshot
 
-*Data coverage: 1 posting sourced from `majors.csv` (generated via `web3_major_stats.py`). Updated 2025-11-02 14:18 UTC.*
+*Data coverage: 1 posting sourced from `majors.csv` (generated via `web3_major_stats.py`). Updated 2025-11-03 12:20 UTC.*
+
+## Location coverage check
+
+- Binance software-engineering postings analysed globally: 99.
+- United Kingdom matches after scanning all location fields (countries, cities, regions, raw text, applicant requirements) and UK synonyms: 1.
+
+### Global country footprint for Binance software-engineering roles
+
+| Country token | Postings mentioning | Share of Binance sample |
+| --- | ---: | ---: |
+| Taiwan | 42 | 42% |
+| United States | 29 | 29% |
+| Hong Kong | 19 | 19% |
+| Singapore | 9 | 9% |
+| United Arab Emirates | 8 | 8% |
+| Australia | 8 | 8% |
+| Bulgaria | 6 | 6% |
+| Thailand | 6 | 6% |
+| (unspecified) | 4 | 4% |
+| China | 4 | 4% |
+| United Kingdom | 1 | 1% |
 
 ## Posting snapshot
 
@@ -39,6 +60,6 @@
 
 ## Methodology
 
-- Filtered `majors.csv` for records where `company == "Binance"`, `categories` contained "Computer Science / Software Engineering", and `location_countries` included "United Kingdom".
+- Filtered `majors.csv` for records where `company == "Binance"`, `categories` contained "Computer Science / Software Engineering", and any of the location fields mentioned the United Kingdom (matching `United Kingdom`, `UK`, or `U.K.` case-insensitively).
 - Deduplicated requirement phrases per posting before counting to prevent multi-line repetitions from inflating totals.
 - Skill themes were matched via targeted keyword patterns tailored to payments-focused engineering leadership roles.
